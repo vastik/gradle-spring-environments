@@ -3,24 +3,28 @@ package com.vast.gradle.plugin
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.springframework.boot.gradle.tasks.run.BootRun
+import org.gradle.api.tasks.JavaExec
 
-class SpringEnvironmentPlugin implements Plugin<Project> {
-
+class SpringEnv implements Plugin<Project> {
     static class Extension {
-        String basedir = './src/main/resources/'
+        File baseDir
+        Class<? extends JavaExec> runTask = JavaExec.class
     }
 
     @Override
     void apply(Project project) {
         def extension = project.extensions.create('springenv', Extension)
-        def configurations = new FileNameFinder().getFileNames(extension.basedir, 'application-*')
+
+        if (!extension.baseDir)
+            extension.baseDir = project.file('/src/main/resources/')
+
+        def configurations = new FileNameFinder().getFileNames(extension.baseDir.toString(), 'application-*')
         configurations.each {
             def file = new File(it).name
             def ext = file.take(file.lastIndexOf('.'))
             def name = (ext - 'application-').split('-').collect { it.capitalize() }.join('')
 
-            project.tasks.create("bootRun${name}", BootRun.class) {
+            project.tasks.create("bootRun${name}", JavaExec.class) {
                 group = 'Application'
                 dependsOn = ['build']
 
