@@ -5,6 +5,8 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.tasks.JavaExec
 
+import java.nio.file.Paths
+
 class SpringEnv implements Plugin<Project> {
     static class Extension {
         File baseDir
@@ -16,7 +18,12 @@ class SpringEnv implements Plugin<Project> {
         def extension = project.extensions.create('springenv', Extension)
 
         if (!extension.baseDir)
-            extension.baseDir = project.file('/src/main/resources/')
+            extension.baseDir = project.file(Paths.get('src', 'main', 'resources'))
+
+        if (!extension.baseDir.exists()) {
+            System.err.println(extension.baseDir.toString() + ' is not exist')
+            return
+        }
 
         def configurations = new FileNameFinder().getFileNames(extension.baseDir.toString(), 'application-*')
         configurations.each {
@@ -35,6 +42,5 @@ class SpringEnv implements Plugin<Project> {
                 }
             }
         }
-
     }
 }
