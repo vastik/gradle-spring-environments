@@ -33,7 +33,7 @@ class SpringEnv implements Plugin<Project> {
 
             project.tasks.create("bootRun${name}", JavaExec.class) {
                 group = 'Application'
-                dependsOn = ['build']
+                dependsOn = ['jar']
 
                 doFirst() {
                     main = project.getProperty('mainClassName')
